@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sevak · A quiet assistant for personal businesses</title>
+<meta name="description" content="Sevak builds intelligent WhatsApp AI assistants for fitness coaches, clinics, yoga studios and businesses across India. Conversations, bookings, payments — automated." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
+<style>
+:root {
+  --bg: #f4f0e8; --ink: #1a1714; --ink-soft: #4a423b; --ink-mute: #8b8278;
+  --line: rgba(26,23,20,.14); --line-soft: rgba(26,23,20,.08);
+  --accent: #b8542b; --paper: #faf7f0; --chip: rgba(26,23,20,.05);
+  --chat-bg: #ece3d3; --bubble-in: #fff; --bubble-out: #d8f0c4; --chat-ink: #1a1714;
+  --serif: "Instrument Serif","Newsreader",Georgia,serif;
+  --sans: "Geist",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --pad-section: 140px; --pad-block: 48px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+a{color:inherit;text-decoration:none;}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0;}
+::selection{background:var(--accent);color:var(--paper);}
+.shell{max-width:1320px;margin:0 auto;padding:0 56px;}
+@media(max-width:720px){.shell{padding:0 24px;}}
+/* Nav */
+.nav{position:sticky;top:0;z-index:50;padding:22px 0 20px;background:color-mix(in oklab,var(--bg) 88%,transparent);backdrop-filter:blur(12px) saturate(140%);border-bottom:1px solid var(--line-soft);}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:32px;}
+.brand{font-family:var(--serif);font-size:26px;letter-spacing:-.01em;font-style:italic;font-weight:400;display:flex;align-items:center;gap:8px;}
+.brand-mark{width:22px;height:22px;border:1px solid var(--ink);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;}
+.brand-mark::before{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--accent);}
+.nav-links{display:flex;gap:36px;font-size:13.5px;color:var(--ink-soft);}
+.nav-links a:hover{color:var(--ink);}
+.nav-cta{display:inline-flex;align-items:center;gap:10px;padding:10px 18px;border-radius:999px;background:var(--ink);color:var(--paper);font-size:13.5px;transition:transform .2s;}
+.nav-cta:hover{transform:translateY(-1px);}
+.nav-cta .arrow{transition:transform .2s;}
+.nav-cta:hover .arrow{transform:translateX(3px);}
+@media(max-width:880px){.nav-links{display:none;}}
+/* Hero */
+.hero{padding:88px 0 var(--pad-section);position:relative;}
+.hero-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:80px;align-items:center;}
+@media(max-width:1080px){.hero-grid{grid-template-columns:1fr;gap:64px;}}
+.kicker{display:inline-flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:28px;}
+.kicker .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px color-mix(in oklab,var(--accent) 20%,transparent);animation:pulse 2.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 4px color-mix(in oklab,var(--accent) 20%,transparent);}50%{box-shadow:0 0 0 7px color-mix(in oklab,var(--accent) 0%,transparent);}}
+h1.headline{font-family:var(--serif);font-weight:400;font-size:clamp(56px,7vw,104px);line-height:.96;letter-spacing:-.022em;margin:0 0 32px;color:var(--ink);}
+h1.headline em{font-style:italic;color:var(--accent);}
+.lede{font-size:19px;line-height:1.55;color:var(--ink-soft);max-width:30em;margin:0 0 40px;}
+.cta-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+.btn-primary{display:inline-flex;align-items:center;gap:12px;padding:16px 26px;border-radius:999px;background:var(--ink);color:var(--paper);font-size:15px;transition:transform .25s,background .25s;}
+.btn-primary:hover{transform:translateY(-1px);background:var(--accent);}
+.btn-primary .arrow{transition:transform .25s;}
+.btn-primary:hover .arrow{transform:translateX(4px);}
+.btn-ghost{display:inline-flex;align-items:center;gap:10px;padding:16px 22px;border-radius:999px;color:var(--ink);font-size:15px;border:1px solid var(--line);transition:border-color .2s,background .2s;}
+.btn-ghost:hover{border-color:var(--ink);background:color-mix(in oklab,var(--ink) 4%,transparent);}
+.btn-ghost .play{width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--paper);display:inline-flex;align-items:center;justify-content:center;font-size:9px;padding-left:2px;}
+/* Phone */
+.chat-stack{position:relative;width:100%;max-width:440px;margin-left:auto;}
+@media(max-width:1080px){.chat-stack{margin:0 auto;max-width:380px;}}
+.chat-frame{position:relative;width:100%;aspect-ratio:9/16.5;border-radius:38px;padding:12px;background:linear-gradient(180deg,color-mix(in oklab,var(--ink) 96%,var(--accent)) 0%,var(--ink) 100%);box-shadow:0 30px 80px -20px rgba(26,23,20,.35),0 4px 14px -2px rgba(26,23,20,.18),inset 0 0 0 1px rgba(255,255,255,.06);}
+.chat-frame::before{content:"";position:absolute;top:22px;left:50%;transform:translateX(-50%);width:96px;height:26px;background:#050505;border-radius:999px;z-index:3;}
+.chat-screen{width:100%;height:100%;border-radius:28px;background:var(--chat-bg);overflow:hidden;position:relative;display:flex;flex-direction:column;}
+.chat-statusbar{height:48px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:11px;color:var(--chat-ink);font-weight:600;}
+.chat-header{display:flex;align-items:center;gap:12px;padding:10px 14px 12px;background:color-mix(in oklab,var(--chat-bg) 75%,var(--paper));border-bottom:1px solid color-mix(in oklab,var(--chat-ink) 8%,transparent);}
+.chat-avatar{width:34px;height:34px;flex:0 0 34px;border-radius:50%;background:var(--accent);color:var(--paper);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-style:italic;font-size:16px;}
+.chat-who{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25;}
+.chat-who b{font-size:13.5px;font-weight:600;color:var(--chat-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chat-who span{font-size:10.5px;color:color-mix(in oklab,var(--chat-ink) 60%,transparent);}
+.chat-who .online{display:inline-flex;align-items:center;gap:6px;}
+.chat-who .online::before{content:"";width:6px;height:6px;border-radius:50%;background:#2ea043;}
+.chat-stream{flex:1;padding:14px 12px 18px;display:flex;flex-direction:column;gap:8px;overflow:hidden;position:relative;}
+.chat-day{align-self:center;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:color-mix(in oklab,var(--chat-ink) 50%,transparent);background:color-mix(in oklab,var(--paper) 70%,transparent);padding:4px 10px;border-radius:999px;margin-bottom:6px;}
+.bubble{max-width:78%;padding:8px 12px 9px;border-radius:14px;font-size:13.5px;line-height:1.4;color:var(--chat-ink);position:relative;word-wrap:break-word;animation:bubbleIn .42s cubic-bezier(.2,.7,.2,1) both;box-shadow:0 1px 0.5px rgba(0,0,0,.05);}
+.bubble.in{background:var(--bubble-in);align-self:flex-start;border-top-left-radius:4px;}
+.bubble.out{background:var(--bubble-out);align-self:flex-end;border-top-right-radius:4px;}
+.bubble .time{display:inline-block;font-size:9.5px;color:color-mix(in oklab,var(--chat-ink) 45%,transparent);margin-left:8px;}
+.bubble .ticks{color:#2196f3;font-size:10px;margin-left:2px;}
+.bubble.card{padding:0;overflow:hidden;width:78%;max-width:78%;}
+.card-img{height:72px;background:linear-gradient(135deg,var(--accent),color-mix(in oklab,var(--accent) 60%,var(--ink)));display:flex;align-items:center;justify-content:center;color:var(--paper);font-family:var(--serif);font-style:italic;font-size:14px;}
+.card-body{padding:10px 12px 12px;}
+.card-body .t1{font-size:13px;font-weight:600;color:var(--chat-ink);margin-bottom:2px;}
+.card-body .t2{font-size:11.5px;color:color-mix(in oklab,var(--chat-ink) 55%,transparent);margin-bottom:10px;}
+.card-body .pay-btn{display:block;text-align:center;padding:8px 0;border-radius:8px;background:var(--chat-ink);color:var(--paper);font-size:12px;font-weight:500;}
+@keyframes bubbleIn{0%{opacity:0;transform:translateY(8px) scale(.96);}100%{opacity:1;transform:translateY(0) scale(1);}}
+.typing{align-self:flex-start;background:var(--bubble-in);border-radius:14px;border-top-left-radius:4px;padding:11px 14px;display:inline-flex;gap:4px;animation:bubbleIn .3s ease both;}
+.typing span{width:6px;height:6px;background:color-mix(in oklab,var(--chat-ink) 35%,transparent);border-radius:50%;animation:blink 1.2s ease-in-out infinite;}
+.typing span:nth-child(2){animation-delay:.2s;}
+.typing span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,60%,100%{transform:translateY(0);opacity:.5;}30%{transform:translateY(-3px);opacity:1;}}
+.chat-input{padding:8px 12px 12px;display:flex;gap:8px;align-items:center;background:color-mix(in oklab,var(--chat-bg) 90%,var(--paper));}
+.chat-input .field{flex:1;background:var(--paper);border-radius:999px;height:34px;display:flex;align-items:center;padding:0 14px;font-size:12px;color:color-mix(in oklab,var(--chat-ink) 45%,transparent);}
+.chat-input .send{width:34px;height:34px;border-radius:50%;background:var(--accent);color:var(--paper);display:flex;align-items:center;justify-content:center;}
+.chat-tag{position:absolute;z-index:4;font-family:var(--serif);font-style:italic;font-size:13px;color:var(--ink);background:var(--paper);border:1px solid var(--line);padding:9px 14px;border-radius:999px;display:inline-flex;align-items:center;gap:8px;box-shadow:0 12px 30px -10px rgba(26,23,20,.25);}
+.chat-tag .pip{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+.tag-tl{top:18%;left:-38px;}
+.tag-br{bottom:14%;right:-28px;}
+@media(max-width:1180px){.tag-tl{left:-20px;}.tag-br{right:-16px;}}
+@media(max-width:560px){.tag-tl{left:8px;}.tag-br{right:8px;}}
+.industry-pill{position:absolute;top:-18px;right:0;display:inline-flex;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:999px;font-size:11px;padding:4px;gap:0;z-index:4;box-shadow:0 6px 20px -8px rgba(26,23,20,.2);}
+.industry-pill button{padding:4px 12px;border-radius:999px;color:var(--ink-soft);transition:all .2s;font-size:11px;}
+.industry-pill button.active{background:var(--ink);color:var(--paper);}
+/* Metrics */
+.metrics{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:36px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:32px;}
+@media(max-width:760px){.metrics{grid-template-columns:repeat(2,1fr);gap:28px 24px;}}
+.metric .num{font-weight:600;font-size:clamp(44px,4.8vw,72px);line-height:1;letter-spacing:-.04em;color:var(--ink);display:flex;align-items:baseline;gap:4px;}
+.metric .num em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--accent);font-size:.62em;letter-spacing:0;}
+.metric .lbl{margin-top:12px;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);}
+.metric .sub{margin-top:6px;font-size:13px;color:var(--ink-mute);}
+/* Features */
+.section{padding:var(--pad-section) 0;}
+.section-head{display:grid;grid-template-columns:.6fr 1.4fr;gap:48px;margin-bottom:var(--pad-block);}
+@media(max-width:880px){.section-head{grid-template-columns:1fr;gap:16px;}}
+.section-head .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);}
+.section-head h2{font-family:var(--serif);font-weight:400;font-size:clamp(40px,4.6vw,64px);line-height:1;letter-spacing:-.02em;margin:0;max-width:14ch;}
+.section-head h2 em{font-style:italic;color:var(--accent);}
+.section-head .lede{margin-top:18px;max-width:36em;}
+.feature{display:grid;grid-template-columns:80px 1fr 1.1fr;gap:48px;padding:40px 0;border-top:1px solid var(--line);align-items:start;transition:background .35s,padding .35s;}
+.feature:last-child{border-bottom:1px solid var(--line);}
+.feature:hover{background:color-mix(in oklab,var(--ink) 2.5%,transparent);}
+.feature .num{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--ink-mute);}
+.feature .name{font-family:var(--serif);font-size:30px;line-height:1.05;letter-spacing:-.014em;color:var(--ink);max-width:14ch;}
+.feature .desc{font-size:16px;line-height:1.6;color:var(--ink-soft);max-width:38em;}
+.feature .desc .tag-line{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+.feature .desc .tag{font-size:11.5px;letter-spacing:.04em;padding:5px 11px;border-radius:999px;background:var(--chip);color:var(--ink-soft);}
+@media(max-width:880px){.feature{grid-template-columns:60px 1fr;}.feature .desc{grid-column:1/-1;}}
+/* Closing */
+.closing{padding:var(--pad-section) 0;text-align:center;border-top:1px solid var(--line);}
+.closing .ornament{font-family:var(--serif);font-style:italic;font-size:28px;color:var(--accent);margin-bottom:28px;display:inline-block;}
+.closing .closing-eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:32px;display:inline-block;}
+.closing h2{font-family:var(--serif);font-weight:400;font-size:clamp(56px,7vw,104px);line-height:.98;letter-spacing:-.022em;margin:0 auto 28px;max-width:14ch;}
+.closing h2 em{font-style:italic;color:var(--accent);}
+.closing .note{margin-top:28px;font-size:13px;color:var(--ink-mute);letter-spacing:.04em;}
+/* Footer */
+.foot{border-top:1px solid var(--line);padding:36px 0 44px;display:flex;justify-content:space-between;align-items:center;gap:24px;font-size:13px;color:var(--ink-mute);flex-wrap:wrap;}
+.foot .left{display:flex;align-items:center;gap:14px;}
+.foot .links{display:flex;gap:24px;}
+.foot .links a:hover{color:var(--ink);}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const SCRIPTS = {
+  yoga: {
+    who: "Anjali · Yoga Studio", handle: "anjali.yoga", avatar: "A", day: "Tuesday",
+    steps: [
+      { wait: 400, kind: "msg", side: "in", text: "Hi! Do you have any beginner classes this week?", time: "9:14" },
+      { wait: 1100, kind: "typing", duration: 1300 },
+      { kind: "msg", side: "out", text: "Yes — Tue & Thu, 7am, 60 minutes. Want to try Tuesday?", time: "9:14" },
+      { wait: 1400, kind: "msg", side: "in", text: "Yes please ✨", time: "9:15" },
+      { wait: 700, kind: "typing", duration: 900 },
+      { kind: "msg", side: "out", text: "Lovely. Drop ₹400 to confirm — secure link below.", time: "9:15" },
+      { wait: 500, kind: "card", title: "Drop-in · Beginner Flow", subtitle: "Tue · 7:00 AM · 60 min", btn: "Pay ₹400", img: "Sevak · Payments", time: "9:15" },
+      { wait: 1800, kind: "msg", side: "in", text: "Done!", time: "9:18" },
+      { wait: 800, kind: "typing", duration: 1100 },
+      { kind: "msg", side: "out", text: "Booked. Gentle reminder Monday evening. See you on the mat.", time: "9:18" },
+    ],
+  },
+  astro: {
+    who: "Vikram · Astrology", handle: "vikram.jyotish", avatar: "V", day: "Today",
+    steps: [
+      { wait: 400, kind: "msg", side: "in", text: "Can you do a birth chart reading?", time: "11:02" },
+      { wait: 900, kind: "typing", duration: 1100 },
+      { kind: "msg", side: "out", text: "Of course. Need your date, time and city of birth.", time: "11:02" },
+      { wait: 1400, kind: "msg", side: "in", text: "12 Sept 1994, 6:42am, Pune.", time: "11:03" },
+      { wait: 700, kind: "typing", duration: 1300 },
+      { kind: "msg", side: "out", text: "Got it. 45 minutes, ₹2,500. Earliest is Thu 6pm.", time: "11:03" },
+      { wait: 1300, kind: "msg", side: "in", text: "Book it.", time: "11:04" },
+      { wait: 600, kind: "card", title: "Birth Chart Reading", subtitle: "Thu · 6:00 PM · 45 min", btn: "Pay ₹2,500", img: "Sevak · Payments", time: "11:04" },
+      { wait: 1800, kind: "msg", side: "out", text: "Confirmed. PDF chart will arrive by Wednesday.", time: "11:05" },
+    ],
+  },
+  coach: {
+    who: "Aryan · Fitness Coach", handle: "aryan.fitcoach", avatar: "A", day: "Today",
+    steps: [
+      { wait: 400, kind: "msg", side: "in", text: "Hey — are you free for a discovery call this week?", time: "15:47" },
+      { wait: 900, kind: "typing", duration: 1100 },
+      { kind: "msg", side: "out", text: "Yes — Wed 4pm or Fri 11am, 30 min. Which works?", time: "15:47" },
+      { wait: 1300, kind: "msg", side: "in", text: "Friday 11.", time: "15:49" },
+      { wait: 700, kind: "typing", duration: 1100 },
+      { kind: "msg", side: "out", text: "Locked in. Calendar invite sent. Intake form below.", time: "15:49" },
+      { wait: 500, kind: "card", title: "Discovery Call · Intake", subtitle: "Fri · 11:00 AM · 30 min", btn: "Open form", img: "Sevak · Booking", time: "15:49" },
+      { wait: 1800, kind: "msg", side: "in", text: "Filled.", time: "15:53" },
+      { wait: 700, kind: "typing", duration: 1000 },
+      { kind: "msg", side: "out", text: "Lovely. I'll nudge you an hour before. Talk Friday.", time: "15:53" },
+    ],
+  },
+};
+
+function Icon({ name }) {
+  const s = { width: 12, height: 12, display: "inline-block" };
+  if (name === "signal") return <svg style={s} viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="14" width="3" height="6" rx="0.5"/><rect x="8" y="10" width="3" height="10" rx="0.5"/><rect x="14" y="6" width="3" height="14" rx="0.5"/><rect x="20" y="2" width="3" height="18" rx="0.5"/></svg>;
+  if (name === "wifi") return <svg style={s} viewBox="0 0 24 24" fill="currentColor"><path d="M12 18a2 2 0 100-4 2 2 0 000 4zM5 11a10 10 0 0114 0l-2 2a7 7 0 00-10 0l-2-2zM2 8a14 14 0 0120 0l-2 2a11 11 0 00-16 0L2 8z"/></svg>;
+  if (name === "battery") return <svg style={{width:22,height:12,display:"inline-block"}} viewBox="0 0 30 14"><rect x="0.5" y="0.5" width="25" height="13" rx="3.5" fill="none" stroke="currentColor"/><rect x="26.5" y="4" width="2.5" height="6" rx="1" fill="currentColor"/><rect x="2" y="2" width="22" height="10" rx="2" fill="currentColor"/></svg>;
+  if (name === "phone") return <svg style={s} viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8a15.1 15.1 0 006.6 6.6l2.2-2.2a1 1 0 011-.24 11.6 11.6 0 003.6.6 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.6 3.57a1 1 0 01-.25 1l-2.25 2.23z"/></svg>;
+  if (name === "video") return <svg style={s} viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1v-3.5l4 4V6.5l-4 4z"/></svg>;
+  return null;
+}
+
+function HeroChat({ industry }) {
+  const script = SCRIPTS[industry] || SCRIPTS.yoga;
+  const [items, setItems] = useState([]);
+  const [typing, setTyping] = useState(false);
+  const streamRef = useRef(null);
+  const tokenRef = useRef(0);
+
+  useEffect(() => {
+    tokenRef.current += 1;
+    const myToken = tokenRef.current;
+    setItems([]); setTyping(false);
+    let cancelled = false;
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    async function run() {
+      while (!cancelled && tokenRef.current === myToken) {
+        await sleep(600);
+        if (cancelled || tokenRef.current !== myToken) return;
+        for (const step of script.steps) {
+          if (cancelled || tokenRef.current !== myToken) return;
+          if (step.wait) await sleep(step.wait);
+          if (cancelled || tokenRef.current !== myToken) return;
+          if (step.kind === "typing") { setTyping(true); await sleep(step.duration||1000); if (cancelled||tokenRef.current!==myToken) return; setTyping(false); continue; }
+          setItems(arr => [...arr, step]);
+        }
+        await sleep(3200);
+        if (cancelled || tokenRef.current !== myToken) return;
+        setItems([]);
+      }
+    }
+    run();
+    return () => { cancelled = true; };
+  }, [industry]);
+
+  useEffect(() => { const el = streamRef.current; if (el) el.scrollTop = el.scrollHeight; }, [items, typing]);
+
+  const [time, setTime] = useState("9:41");
+  useEffect(() => {
+    const t = () => { const d = new Date(); setTime(`${d.getHours()}:${String(d.getMinutes()).padStart(2,"0")}`); };
+    t(); const i = setInterval(t, 30000); return () => clearInterval(i);
+  }, []);
+
+  return (
+    <div className="chat-frame">
+      <div className="chat-screen">
+        <div className="chat-statusbar">
+          <span>{time}</span>
+          <span style={{display:"inline-flex",gap:4,alignItems:"center"}}><Icon name="signal"/><Icon name="wifi"/><Icon name="battery"/></span>
+        </div>
+        <div className="chat-header">
+          <div className="chat-avatar">{script.avatar}</div>
+          <div className="chat-who">
+            <b>{script.who}</b>
+            <span className="online">Sevak · active</span>
+          </div>
+          <div style={{marginLeft:"auto",display:"flex",gap:12,color:"rgba(0,0,0,.5)",flexShrink:0}}>
+            <Icon name="video"/><Icon name="phone"/>
+          </div>
+        </div>
+        <div className="chat-stream" ref={streamRef}>
+          <div className="chat-day">{script.day}</div>
+          {items.map((s, i) => s.kind === "card" ? (
+            <div className="bubble out card" key={i}>
+              <div className="card-img">{s.img}</div>
+              <div className="card-body">
+                <div className="t1">{s.title}</div>
+                <div className="t2">{s.subtitle}</div>
+                <div className="pay-btn">{s.btn}</div>
+              </div>
+            </div>
+          ) : (
+            <div className={`bubble ${s.side}`} key={i}>
+              {s.text}<span className="time">{s.time}{s.side==="out"&&<span className="ticks"> ✓✓</span>}</span>
+            </div>
+          ))}
+          {typing && <div className="typing"><span/><span/><span/></div>}
+        </div>
+        <div className="chat-input">
+          <div className="field">Sevak is replying…</div>
+          <div className="send"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 11 L21 4 L14 22 L11 13 L3 11 Z" fill="currentColor"/></svg></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const FEATURES = [
+  { n:"i.", name:"Conversations, in your voice.", desc:"Sevak learns the way you write — your phrases, your warmth, your pauses — then replies for you with care. The longer it works, the more it sounds like you.", tags:["Tone matching","Memory","Handoff to you"] },
+  { n:"ii.", name:"Bookings without back-and-forth.", desc:"Sevak proposes slots, confirms, reschedules and quietly pencils everything into your Google Calendar — over the same WhatsApp thread your client is already in.", tags:["Google Calendar","Buffers","Time zones"] },
+  { n:"iii.", name:"Payments collected, end of story.", desc:"A clean payment link arrives in the conversation. Razorpay or UPI. Money lands, receipts go out, your books update — without you opening another tab.", tags:["Razorpay","UPI","Auto-receipts"] },
+  { n:"iv.", name:"Reminders, written gently.", desc:"The night before, an hour before, a thoughtful follow-up after. Cadence and language you set once, then forget. No more missed sessions, no more chase.", tags:["Drip cadence","Auto-cancel","Re-engagement"] },
+  { n:"v.", name:"A client memory you can trust.", desc:"Every chat, every preference, every check-in gets remembered. Sevak hands you the full context the moment you open a thread — quietly, in the background.", tags:["CRM","Tags","Notes"] },
+  { n:"vi.", name:"Multilingual without effort.", desc:"English, Hindi, Hinglish, Marathi, Tamil — Sevak meets each client in the language they wrote in, switching mid-thread if they do.", tags:["12+ languages","Code-switching"] },
+  { n:"vii.", name:"Quiet integrations.", desc:"Google Calendar, Razorpay, Notion, Google Sheets. Wired in once. Then they vanish into the background, the way good tools should.", tags:["Calendar","Sheets","Razorpay"] },
+  { n:"viii.", name:"Always on, always steady.", desc:"Deployed on Railway with automatic restarts, health checks and uptime monitoring. Riya doesn't take sick days.", tags:["99.9% uptime","Auto-restart","Health checks"] },
+];
+
+function App() {
+  const [industry, setIndustry] = useState("yoga");
+  return (
+    <>
+      <nav className="nav">
+        <div className="shell nav-inner">
+          <a href="#" className="brand"><span className="brand-mark"/>Sevak</a>
+          <div className="nav-links">
+            <a href="#features">Features</a>
+            <a href="#how">How it works</a>
+            <a href="#contact">Contact</a>
+          </div>
+          <a href="#contact" className="nav-cta">Begin <span className="arrow">→</span></a>
+        </div>
+      </nav>
+
+      <section className="hero">
+        <div className="shell hero-grid">
+          <div>
+            <div className="kicker"><span className="dot"/>An automated agent for online businesses</div>
+            <h1 className="headline">A quiet assistant<br/>for the world's most<br/><em>personal</em> businesses.</h1>
+            <p className="lede">Sevak runs your WhatsApp — conversations, bookings, payments, reminders — in your voice, around the clock. So you can hold the session, not the inbox.</p>
+            <div className="cta-row">
+              <a href="#contact" className="btn-primary">Begin free <span className="arrow">→</span></a>
+              <a href="https://wa.me/917043383160" target="_blank" className="btn-ghost"><span className="play">▶</span> Chat with Riya</a>
+            </div>
+          </div>
+          <div style={{position:"relative"}}>
+            <div className="chat-stack">
+              <div className="industry-pill">
+                {["yoga","astro","coach"].map(k => (
+                  <button key={k} className={industry===k?"active":""} onClick={()=>setIndustry(k)}>
+                    {k==="yoga"?"Yoga":k==="astro"?"Astrology":"Coaching"}
+                  </button>
+                ))}
+              </div>
+              <HeroChat industry={industry}/>
+              <div className="chat-tag tag-tl"><span className="pip"/>Replies in 6 seconds</div>
+              <div className="chat-tag tag-br"><span className="pip"/>Payment captured</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="shell">
+        <div className="metrics">
+          {[
+            {num:"24",em:"/7",lbl:"Always on",sub:"Replies any hour, any day."},
+            {num:"5",em:"×",lbl:"More bookings",sub:"Compared with unattended inboxes."},
+            {num:"6",em:"s",lbl:"Median reply",sub:"From the moment a message lands."},
+            {num:"12",em:"+",lbl:"Languages",sub:"Hindi, Hinglish, English and more."},
+          ].map((d,i) => (
+            <div className="metric" key={i}>
+              <div className="num">{d.num}<em>{d.em}</em></div>
+              <div className="lbl">{d.lbl}</div>
+              <div className="sub">{d.sub}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <section className="section" id="features">
+        <div className="shell">
+          <div className="section-head">
+            <div className="eyebrow">§ Features</div>
+            <div>
+              <h2>Eight quiet things, done <em>well</em>.</h2>
+              <p className="lede">Sevak doesn't try to be everything. It does the handful of things your inbox eats up — and does them with the manners of an attentive assistant.</p>
+            </div>
+          </div>
+          <div>
+            {FEATURES.map((f,i) => (
+              <div className="feature" key={i}>
+                <div className="num">{f.n}</div>
+                <div className="name">{f.name}</div>
+                <div className="desc">
+                  <div>{f.desc}</div>
+                  <div className="tag-line">{f.tags.map(t=><span className="tag" key={t}>{t}</span>)}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="closing" id="contact">
+        <div className="shell">
+          <div className="closing-eyebrow">§ Begin</div>
+          <h2>Let Sevak hold<br/>the <em>inbox</em>.</h2>
+          <p className="lede" style={{margin:"0 auto 36px",textAlign:"center"}}>Set it up in a Sunday afternoon. Watch your weekdays open back up.</p>
+          <div className="cta-row" style={{justifyContent:"center"}}>
+            <a href="mailto:anshprajapati2700@gmail.com" className="btn-primary">Write to us <span className="arrow">→</span></a>
+            <a href="https://wa.me/917043383160" target="_blank" className="btn-ghost">WhatsApp us</a>
+          </div>
+          <div className="note">anshprajapati2700@gmail.com · +91 70433 83160 · Made in India</div>
+        </div>
+      </section>
+
+      <footer className="shell foot">
+        <div className="left">
+          <span className="brand-mark"/>
+          <span style={{fontFamily:"var(--serif)",fontStyle:"italic",fontSize:16}}>Sevak</span>
+          <span style={{color:"var(--ink-mute)"}}>· made with care, in India.</span>
+        </div>
+        <div className="links">
+          <a href="mailto:anshprajapati2700@gmail.com">Contact</a>
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+        </div>
+      </footer>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
