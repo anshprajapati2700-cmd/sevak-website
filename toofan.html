@@ -1,0 +1,296 @@
+<!-- Name: Ansh -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toofan ⚡ × Sevak — WhatsApp AI Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --storm:#0b1220;        /* deep storm navy */
+    --storm2:#101a2e;
+    --bolt:#37c8ff;          /* electric cyan */
+    --bolt-dim:#1e6e8c;
+    --cloud:#e8eef6;
+    --txt-dim:#8fa0b8;
+    --wa-bg:#0a1014;
+    --wa-out:#005c4b;
+    --wa-in:#1f2c34;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:radial-gradient(1200px 600px at 50% -10%, #14223c 0%, var(--storm) 55%);
+    color:var(--cloud);font-family:'Inter',sans-serif;
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;
+    padding:42px 18px 60px;
+  }
+  .badge-row{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+  .logo{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:22px;letter-spacing:.02em;color:var(--bolt)}
+  .x{color:var(--txt-dim);font-size:12px;text-transform:uppercase;letter-spacing:.14em}
+  .sevak{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px;color:var(--cloud)}
+  h1{
+    font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(28px,5vw,44px);
+    text-align:center;line-height:1.1;max-width:18ch;margin-bottom:14px;
+  }
+  h1 em{font-style:normal;color:var(--bolt)}
+  .sub{color:var(--txt-dim);text-align:center;max-width:46ch;line-height:1.6;font-size:15px;margin-bottom:8px}
+  .demo-note{
+    margin:14px 0 26px;display:flex;gap:8px;align-items:flex-start;max-width:52ch;
+    background:rgba(55,200,255,.07);border:1px solid rgba(55,200,255,.22);
+    border-radius:12px;padding:10px 14px;font-size:12.5px;color:#a8c8da;line-height:1.5;
+  }
+  /* ---------- phone ---------- */
+  .phone{
+    width:min(380px,100%);background:#000;border-radius:42px;padding:12px;
+    box-shadow:0 30px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06);
+    position:relative;
+  }
+  .notch{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:120px;height:26px;background:#000;border-radius:0 0 16px 16px;z-index:5}
+  .screen{background:var(--wa-bg);border-radius:32px;overflow:hidden;display:flex;flex-direction:column;height:660px}
+  .wa-head{
+    display:flex;align-items:center;gap:10px;padding:34px 14px 12px;background:#111b21;
+    border-bottom:1px solid rgba(255,255,255,.05);
+  }
+  .back{color:var(--bolt);font-size:24px;line-height:1}
+  .avatar{
+    width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--bolt),#1565c0);
+    display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;
+    font-weight:800;color:#04121c;font-size:17px;
+  }
+  .who{flex:1}
+  .nm{font-weight:600;font-size:15.5px}
+  .st{font-size:12px;color:#7fd4a8}
+  .head-ico{color:#aebac1;font-size:17px;padding:0 4px}
+  .disclosure{
+    background:#0e171e;color:#7e96a8;font-size:11px;text-align:center;padding:6px 12px;
+    border-bottom:1px solid rgba(255,255,255,.04);
+  }
+  .chat{
+    flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:8px;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(55,200,255,.03) 0, transparent 40%),
+      var(--wa-bg);
+  }
+  .day{align-self:center;background:#182229;color:#8696a0;font-size:11px;padding:4px 12px;border-radius:8px;margin-bottom:4px}
+  .msg{max-width:82%;padding:8px 12px;border-radius:10px;font-size:14px;line-height:1.45;white-space:pre-wrap;position:relative;animation:pop .18s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .in{background:var(--wa-in);align-self:flex-start;border-top-left-radius:2px}
+  .out{background:var(--wa-out);align-self:flex-end;border-top-right-radius:2px}
+  .time{display:block;text-align:right;font-size:10px;color:rgba(255,255,255,.45);margin-top:4px}
+  .typing{display:flex;gap:4px;padding:12px 14px;background:var(--wa-in);border-radius:10px;align-self:flex-start;width:60px}
+  .typing span{width:7px;height:7px;border-radius:50%;background:#8696a0;animation:blink 1.2s infinite}
+  .typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+  .paycard{
+    background:#0e1b25;border:1px solid rgba(55,200,255,.3);border-radius:12px;
+    padding:12px;align-self:flex-start;max-width:82%;animation:pop .18s ease;
+  }
+  .paycard .pc-title{font-weight:600;font-size:13.5px;margin-bottom:6px}
+  .paycard .pc-line{font-size:12.5px;color:#9fb3c4;line-height:1.5}
+  .paycard .pc-btn{
+    margin-top:10px;display:block;text-align:center;background:var(--bolt);color:#04121c;
+    font-weight:700;font-size:13px;border-radius:8px;padding:9px;cursor:pointer;
+  }
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:10px 12px;background:#0c141a;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{
+    flex:0 0 auto;background:#15212b;border:1px solid rgba(55,200,255,.25);color:var(--cloud);
+    border-radius:18px;padding:7px 14px;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;
+    display:flex;align-items:center;gap:7px;transition:.15s;
+  }
+  .chip:hover{border-color:var(--bolt);background:#182836}
+  .chip .step{
+    background:var(--bolt);color:#04121c;font-weight:800;font-size:10px;width:17px;height:17px;
+    border-radius:50%;display:flex;align-items:center;justify-content:center;
+  }
+  .inputbar{display:flex;gap:8px;padding:10px 12px 26px;background:#0c141a}
+  .field{
+    flex:1;background:#1f2c34;border:none;border-radius:20px;padding:11px 16px;color:var(--cloud);
+    font-size:14px;outline:none;font-family:'Inter',sans-serif;
+  }
+  .send{
+    width:44px;height:44px;border-radius:50%;border:none;background:var(--bolt);color:#04121c;
+    font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .reset{
+    margin-top:18px;background:none;border:1px solid rgba(255,255,255,.16);color:var(--txt-dim);
+    font-family:'Bricolage Grotesque',sans-serif;letter-spacing:.06em;text-transform:uppercase;
+    font-size:11px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer;transition:.15s;
+  }
+  .reset:hover{border-color:var(--bolt);color:var(--bolt)}
+  .footnote{margin-top:14px;color:#54647c;font-size:11.5px;text-align:center;max-width:42ch;line-height:1.5}
+</style>
+</head>
+<body>
+
+<div class="badge-row">
+  <span class="logo">TOOFAN ⚡</span>
+  <span class="x">automated by</span>
+  <span class="sevak">Sevak</span>
+</div>
+<h1>The waitlist that <em>talks back.</em></h1>
+<p class="sub">A WhatsApp AI agent for D2C launches — captures signups, answers product questions, takes launch-day orders, and nudges reorders. 24/7, in the brand's voice.</p>
+<div class="demo-note">
+  <span>⚡</span>
+  <span><b>Toofan is a fictional brand</b> built to demo the system. Swap in any real brand's voice, specs &amp; pricing and this goes live in a day.</span>
+</div>
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="screen">
+    <div class="wa-head">
+      <span class="back">‹</span>
+      <div class="avatar">T</div>
+      <div class="who">
+        <div class="nm">Toofan</div>
+        <div class="st" id="status">online</div>
+      </div>
+      <span class="head-ico">📹</span>
+      <span class="head-ico">📞</span>
+    </div>
+    <div class="disclosure">🤖 Toofan Assistant — automated by Sevak · replies in seconds, 24/7</div>
+    <div class="chat" id="chat"></div>
+    <div class="chips" id="chips"></div>
+    <div class="inputbar">
+      <input class="field" id="field" placeholder="Message" autocomplete="off"/>
+      <button class="send" id="send">➤</button>
+    </div>
+  </div>
+</div>
+
+<button class="reset" id="reset">↺ Restart demo</button>
+<p class="footnote">Live demo — powered by Claude. Capture · FAQ · Order · Reorder · Founder handoff.</p>
+
+<script>
+/* Name: Ansh
+   TOOFAN — fictional creator-led energy drink. Public-safe reskin of the Sevak D2C demo.
+   All specs are invented; this file is safe to post/record publicly. */
+
+const SYSTEM_PROMPT = `You are the Toofan Assistant — the friendly WhatsApp voice of Toofan, a fictional creator-led energy drink brand from India ("toofan" = storm). Brand voice: warm, real, a little playful, Gen-Z, never corporate. Tagline: "Bring the storm."
+
+You are an AI assistant built by Sevak. If asked, be honest about that — stay friendly.
+
+STYLE:
+- This is WhatsApp. Replies SHORT: 2-4 lines max. One idea per message.
+- Warm + energetic, light emoji (max 1-2). Hinglish welcome if the user uses it.
+- Sound like the founder's cool friend, never a call centre.
+
+PRODUCT FACTS (fictional demo specs):
+- Toofan Original: 250ml can, 120mg natural caffeine (green coffee), zero sugar, jaggery-sweetened lightly.
+- Flavours: Mango Monsoon, Nimbu Volt, Kala Khatta Storm.
+- Price: ₹99/can · launch pack of 6 = ₹499 (early-access price).
+- Ships pan-India in 3-5 days. COD + UPI via Razorpay.
+- Founders: two college friends, Dev & Arjun (fictional). Bulk/collab/press → offer founder handoff.
+
+JOBS:
+1. WAITLIST: get name + city, confirm they're on the early-access list.
+2. FAQ: answer from the facts above only. If unknown, say you'll check with the team.
+3. ORDER: confirm pack + address city, then say a Razorpay link is on its way.
+4. REORDER: reference their last order warmly, offer 1-tap repeat.
+5. HANDOFF: bulk/collab/press → "connecting you with Dev & Arjun directly."`;
+
+const SCENARIOS = [
+  {step:"1", label:"How do I get early access? 👀"},
+  {step:"2", label:"What's in it? Caffeine kitna hai?"},
+  {step:"3", label:"It's launch day — I want the 6-pack ⚡"},
+  {step:"4", label:"Bro that mango one was 🔥 need more"},
+  {step:"5", label:"I run a gym chain — bulk order possible?"},
+];
+
+let history = [], busy = false;
+const chat = document.getElementById('chat'),
+      chips = document.getElementById('chips'),
+      field = document.getElementById('field'),
+      status = document.getElementById('status');
+
+function ts(){const d=new Date();return d.getHours().toString().padStart(2,'0')+":"+d.getMinutes().toString().padStart(2,'0');}
+
+function bubble(cls,text){
+  const m=document.createElement('div');m.className='msg '+cls;
+  m.innerHTML=text.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'<span class="time">'+ts()+(cls==='out'?' ✓✓':'')+'</span>';
+  chat.appendChild(m);chat.scrollTop=chat.scrollHeight;
+}
+
+function payCard(){
+  const c=document.createElement('div');c.className='paycard';
+  c.innerHTML=`<div class="pc-title">⚡ Toofan Launch Pack ×6</div>
+    <div class="pc-line">Mango Monsoon · early-access price<br><b style="color:#37c8ff">₹499</b> <s style="color:#5a7086">₹594</s> · free shipping</div>
+    <div class="pc-btn">Pay with UPI · Razorpay</div>`;
+  chat.appendChild(c);chat.scrollTop=chat.scrollHeight;
+}
+
+let typingEl=null;
+function typing(on){
+  if(on){typingEl=document.createElement('div');typingEl.className='typing';
+    typingEl.innerHTML='<span></span><span></span><span></span>';
+    chat.appendChild(typingEl);chat.scrollTop=chat.scrollHeight;status.textContent='typing…';}
+  else{if(typingEl)typingEl.remove();typingEl=null;status.textContent='online';}
+}
+
+async function callClaude(){
+  const r=await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,
+      system:SYSTEM_PROMPT,messages:history})
+  });
+  const d=await r.json();
+  return (d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n").trim();
+}
+
+function scripted(t){
+  t=t.toLowerCase();
+  if(t.includes('early access')||t.includes('waitlist'))
+    return "Yesss welcome to the storm ⚡\nDrop your name + city and you're on the early-access list — first dibs when we launch.";
+  if(t.includes('caffeine')||t.includes("what's in"))
+    return "120mg natural caffeine from green coffee, zero sugar — lightly sweetened with jaggery 🌱\n3 flavours: Mango Monsoon, Nimbu Volt, Kala Khatta Storm.";
+  if(t.includes('launch day')||t.includes('6-pack')){setTimeout(payCard,500);
+    return "LET'S GO ⚡ Launch pack of 6 at the early-access price — ₹499.\nSending your payment link now 👇";}
+  if(t.includes('need more')||t.includes('🔥'))
+    return "Mango Monsoon supremacy 🥭 Your last pack was 6 cans to Ahmedabad — same again?\nReply YES and the link's on its way.";
+  if(t.includes('bulk')||t.includes('gym'))
+    return "Ooh, gyms are exactly our scene 💪\nConnecting you with Dev & Arjun (the founders) directly — they'll WhatsApp you within the hour.";
+  return "Toofan Assistant here ⚡ I can get you early access, answer anything about the drink, or sort your order. What do you need?";
+}
+
+async function send(text){
+  if(busy||!text.trim())return;
+  busy=true;
+  bubble('out',text);
+  history.push({role:"user",content:text});
+  field.value='';
+  typing(true);
+  let reply;
+  try{reply=await callClaude();if(!reply)throw 0;}
+  catch(e){await new Promise(r=>setTimeout(r,650));reply=scripted(text);}
+  await new Promise(r=>setTimeout(r,420));
+  typing(false);
+  bubble('in',reply);
+  history.push({role:"assistant",content:reply});
+  busy=false;
+}
+
+function renderChips(){
+  chips.innerHTML='';
+  SCENARIOS.forEach(s=>{
+    const c=document.createElement('button');c.className='chip';
+    c.innerHTML=`<span class="step">${s.step}</span>${s.label}`;
+    c.onclick=()=>send(s.label);
+    chips.appendChild(c);
+  });
+}
+
+function boot(){
+  chat.innerHTML='';history=[];
+  const day=document.createElement('div');day.className='day';day.textContent='TODAY';chat.appendChild(day);
+  bubble('in',"Hey, welcome to Toofan ⚡\nI'm the Toofan assistant — here to get you early access, answer anything, and sort your order when we drop.\n\nTap a question below or just type 👇");
+  renderChips();
+}
+
+document.getElementById('send').onclick=()=>send(field.value);
+field.addEventListener('keydown',e=>{if(e.key==='Enter')send(field.value);});
+document.getElementById('reset').onclick=boot;
+boot();
+</script>
+</body>
+</html>
