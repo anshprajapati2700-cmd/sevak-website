@@ -160,35 +160,13 @@
 </div>
 
 <button class="reset" id="reset">↺ Restart demo</button>
-<p class="footnote">Live demo — powered by Claude. Capture · FAQ · Order · Reorder · Founder handoff.</p>
+<p class="footnote">A guided walkthrough — try the prompts below or type your own. Capture · FAQ · Order · Reorder · Founder handoff.</p>
 
 <script>
 /* Name: Ansh
    TOOFAN — fictional creator-led energy drink. Public-safe reskin of the Sevak D2C demo.
-   All specs are invented; this file is safe to post/record publicly. */
-
-const SYSTEM_PROMPT = `You are the Toofan Assistant — the friendly WhatsApp voice of Toofan, a fictional creator-led energy drink brand from India ("toofan" = storm). Brand voice: warm, real, a little playful, Gen-Z, never corporate. Tagline: "Bring the storm."
-
-You are an AI assistant built by Sevak. If asked, be honest about that — stay friendly.
-
-STYLE:
-- This is WhatsApp. Replies SHORT: 2-4 lines max. One idea per message.
-- Warm + energetic, light emoji (max 1-2). Hinglish welcome if the user uses it.
-- Sound like the founder's cool friend, never a call centre.
-
-PRODUCT FACTS (fictional demo specs):
-- Toofan Original: 250ml can, 120mg natural caffeine (green coffee), zero sugar, jaggery-sweetened lightly.
-- Flavours: Mango Monsoon, Nimbu Volt, Kala Khatta Storm.
-- Price: ₹99/can · launch pack of 6 = ₹499 (early-access price).
-- Ships pan-India in 3-5 days. COD + UPI via Razorpay.
-- Founders: two college friends, Dev & Arjun (fictional). Bulk/collab/press → offer founder handoff.
-
-JOBS:
-1. WAITLIST: get name + city, confirm they're on the early-access list.
-2. FAQ: answer from the facts above only. If unknown, say you'll check with the team.
-3. ORDER: confirm pack + address city, then say a Razorpay link is on its way.
-4. REORDER: reference their last order warmly, offer 1-tap repeat.
-5. HANDOFF: bulk/collab/press → "connecting you with Dev & Arjun directly."`;
+   All specs are invented; this file is safe to post/record publicly.
+   Scripted walkthrough only — no live model call, so behaviour never depends on network/API state. */
 
 const SCENARIOS = [
   {step:"1", label:"How do I get early access? 👀"},
@@ -198,7 +176,7 @@ const SCENARIOS = [
   {step:"5", label:"I run a gym chain — bulk order possible?"},
 ];
 
-let history = [], busy = false;
+let busy = false;
 const chat = document.getElementById('chat'),
       chips = document.getElementById('chips'),
       field = document.getElementById('field'),
@@ -228,28 +206,26 @@ function typing(on){
   else{if(typingEl)typingEl.remove();typingEl=null;status.textContent='online';}
 }
 
-async function callClaude(){
-  const r=await fetch("https://api.anthropic.com/v1/messages",{
-    method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,
-      system:SYSTEM_PROMPT,messages:history})
-  });
-  const d=await r.json();
-  return (d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n").trim();
-}
-
 function scripted(t){
   t=t.toLowerCase();
   if(t.includes('early access')||t.includes('waitlist'))
     return "Yesss welcome to the storm ⚡\nDrop your name + city and you're on the early-access list — first dibs when we launch.";
-  if(t.includes('caffeine')||t.includes("what's in"))
+  if(t.includes('caffeine')||t.includes("what's in")||t.includes('flavour')||t.includes('flavor')||t.includes('taste'))
     return "120mg natural caffeine from green coffee, zero sugar — lightly sweetened with jaggery 🌱\n3 flavours: Mango Monsoon, Nimbu Volt, Kala Khatta Storm.";
-  if(t.includes('launch day')||t.includes('6-pack')){setTimeout(payCard,500);
+  if(t.includes('price')||t.includes('cost')||t.includes('how much'))
+    return "₹99/can, or grab the launch pack of 6 for ₹499 (early-access price) ⚡\nWant me to send the payment link?";
+  if(t.includes('ship')||t.includes('deliver')||t.includes('cod')||t.includes('arrive'))
+    return "Pan-India shipping in 3-5 days 📦 COD or UPI via Razorpay, your pick.";
+  if(t.includes('launch day')||t.includes('6-pack')||t.includes('order')||t.includes('buy')){setTimeout(payCard,500);
     return "LET'S GO ⚡ Launch pack of 6 at the early-access price — ₹499.\nSending your payment link now 👇";}
-  if(t.includes('need more')||t.includes('🔥'))
+  if(t.includes('need more')||t.includes('reorder')||t.includes('again')||t.includes('🔥'))
     return "Mango Monsoon supremacy 🥭 Your last pack was 6 cans to Ahmedabad — same again?\nReply YES and the link's on its way.";
-  if(t.includes('bulk')||t.includes('gym'))
-    return "Ooh, gyms are exactly our scene 💪\nConnecting you with Dev & Arjun (the founders) directly — they'll WhatsApp you within the hour.";
+  if(t.includes('bulk')||t.includes('gym')||t.includes('wholesale')||t.includes('collab')||t.includes('press'))
+    return "Ooh, that's exactly our scene 💪\nConnecting you with Dev & Arjun (the founders) directly — they'll WhatsApp you within the hour.";
+  if(t.includes('refund')||t.includes('cancel')||t.includes('return'))
+    return "No worries — let me get Dev & Arjun to sort that with you directly. They'll WhatsApp you shortly 🙏";
+  if(t.length<6&&/^(hi|hey|hello|yo)\b/.test(t))
+    return "Hey hey ⚡ Tap a question below or just ask me anything about Toofan.";
   return "Toofan Assistant here ⚡ I can get you early access, answer anything about the drink, or sort your order. What do you need?";
 }
 
@@ -257,16 +233,12 @@ async function send(text){
   if(busy||!text.trim())return;
   busy=true;
   bubble('out',text);
-  history.push({role:"user",content:text});
   field.value='';
   typing(true);
-  let reply;
-  try{reply=await callClaude();if(!reply)throw 0;}
-  catch(e){await new Promise(r=>setTimeout(r,650));reply=scripted(text);}
-  await new Promise(r=>setTimeout(r,420));
+  await new Promise(r=>setTimeout(r,550+Math.random()*400));
+  const reply=scripted(text);
   typing(false);
   bubble('in',reply);
-  history.push({role:"assistant",content:reply});
   busy=false;
 }
 
@@ -281,7 +253,7 @@ function renderChips(){
 }
 
 function boot(){
-  chat.innerHTML='';history=[];
+  chat.innerHTML='';
   const day=document.createElement('div');day.className='day';day.textContent='TODAY';chat.appendChild(day);
   bubble('in',"Hey, welcome to Toofan ⚡\nI'm the Toofan assistant — here to get you early access, answer anything, and sort your order when we drop.\n\nTap a question below or just type 👇");
   renderChips();
